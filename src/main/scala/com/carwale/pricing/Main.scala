@@ -5,6 +5,6 @@ package com.carwale.pricing
  */
 object Main {
   def main(args: Array[String]): Unit = {
-
+    println("Carwale pricing engine")
   }
 }
