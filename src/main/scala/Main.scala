@@ -1,5 +1,3 @@
-package com.carwale.pricing
-
 /**
  * Created by pnagarjuna on 18/09/15.
  */

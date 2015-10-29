@@ -6,7 +6,7 @@ scalaVersion := "2.11.7"
 
 sbtVersion := "0.13.9"
 
-mainClass := Some("com.carwale.pricing.Main")
+mainClass := Some("Main")
 
 libraryDependencies ++= Seq (
   "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test",
