@@ -8,6 +8,8 @@ sbtVersion := "0.13.9"
 
 mainClass := Some("Main")
 
+fork in run := true
+
 libraryDependencies ++= Seq (
   "com.typesafe.play" %% "play-ws" % "2.4.0",
   "com.typesafe.play" %% "play-json" % "2.4.0",
