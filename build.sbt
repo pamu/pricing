@@ -9,6 +9,6 @@ sbtVersion := "0.13.9"
 mainClass := Some("Main")
 
 libraryDependencies ++= Seq (
-  "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test",
+  "org.scalatest" %% "scalatest" % "2.2.4" % "test",
   "org.seleniumhq.selenium" % "selenium-java" % "2.32.0" % "test"
 )
