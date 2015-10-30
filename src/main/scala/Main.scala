@@ -27,21 +27,21 @@ object Main {
     val cities = List(2, 176, 273, 225, 246, 105, 1, 10, 13, 12, 40, 224, -1, 3, 31).distinct
 
     val citiesMap = Map(
-      2 -> "",
-      176 -> "",
-      273 -> "",
-      225 -> "",
-      246 -> "",
-      105 -> "",
-      1 -> "",
-      10 -> "",
-      13 -> "",
-      12 -> "",
-      40 -> "",
-      224 -> "",
+      2 -> "Bangalore",
+      176 -> "Chennai",
+      273 -> "Faridabad",
+      225 -> "Ghaziabad",
+      246 -> "Gurgoan",
+      105 -> "Hyberabad",
+      1 -> "Mumbai",
+      10 -> "New Delhi",
+      13 -> "Navi Mumbai",
+      12 -> "Pune",
+      40 -> "Thane",
+      224 -> "Noida",
       -1 -> "Other",
-      3 -> "",
-      31 -> "")
+      3 -> "Nagpur",
+      31 -> "Nashik")
 
     //val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/Desktop/Cars.csv"))
 
@@ -79,7 +79,7 @@ object Main {
                               someVersionsAtomicList match {
                                 case Some(versionsAtomicList) =>
                                   versionsAtomicList.foreach { versionAtomic =>
-                                    println(s"$year   ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}")
+                                    //println(s"$year   ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}")
                                     //writer.println(s"$year    ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}")
                                     cities.foreach { city =>
                                       kms.foreach { km =>
@@ -87,13 +87,13 @@ object Main {
                                           val f = Utils.evaluate(city, versionAtomic.Value, year, month, km)
                                           f onComplete {
                                             case Success(res) =>
-                                              println(s"body ${res.body.toString}")
+                                              //println(s"body ${res.body.toString}")
                                               val doc = Jsoup.parse(res.body.toString())
-                                              val fair = doc.getElementById("lblFair").text().split("\\s+").map(_.trim).reduce(_ + _)
-                                              val good = doc.getElementById("lblGood").text().split("\\s+").map(_.trim).reduce(_ + _)
-                                              val excellent = doc.getElementById("lblExcellent").text().split("\\s+").map(_.trim).reduce(_ + _)
+                                              val fair = doc.getElementById("lblFair").text().split(",").map(_.trim).reduce(_ + _)
+                                              val good = doc.getElementById("lblGood").text().split(",").map(_.trim).reduce(_ + _)
+                                              val excellent = doc.getElementById("lblExcellent").text().split(",").map(_.trim).reduce(_ + _)
 
-                                              println(s"fair $fair good $good excellent $excellent")
+                                              //println(s"fair $fair good $good excellent $excellent")
                                               writer.println(s"${citiesMap(city)}    $km    $year    ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}    $fair    $good    $excellent")
                                               writer.flush()
                                             case Failure(th) =>
