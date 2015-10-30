@@ -1,12 +1,14 @@
 import java.io.PrintWriter
 import java.io.File
-import _root_.Utils.Atomic
+import org.jsoup.Jsoup
 
 import scala.concurrent.{Await, Future}
 import scala.util.Success
 import scala.util.Failure
 
 import scala.concurrent.duration._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Created by pnagarjuna on 18/09/15.
@@ -23,6 +25,23 @@ object Main {
     val kms = List(1000) ++ (10000 to 160000 by 10000).toList
 
     val cities = List(2, 176, 273, 225, 246, 105, 1, 10, 13, 12, 40, 224, -1, 3, 31).distinct
+
+    val citiesMap = Map(
+      2 -> "",
+      176 -> "",
+      273 -> "",
+      225 -> "",
+      246 -> "",
+      105 -> "",
+      1 -> "",
+      10 -> "",
+      13 -> "",
+      12 -> "",
+      40 -> "",
+      224 -> "",
+      -1 -> "Other",
+      3 -> "",
+      31 -> "")
 
     //val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/Desktop/Cars.csv"))
 
@@ -64,8 +83,25 @@ object Main {
                                     //writer.println(s"$year    ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}")
                                     cities.foreach { city =>
                                       kms.foreach { km =>
-                                        writer.println(s"$city $km $year ${makeAtomic.Value} ${modelAtomic.Value} ${versionAtomic.Value}")
-                                        writer.flush()
+                                        months.foreach { month =>
+                                          val f = Utils.evaluate(city, versionAtomic.Value, year, month, km)
+                                          f onComplete {
+                                            case Success(res) =>
+                                              println(s"body ${res.body.toString}")
+                                              val doc = Jsoup.parse(res.body.toString())
+                                              val fair = doc.getElementById("lblFair").text().split("\\s+").map(_.trim).reduce(_ + _)
+                                              val good = doc.getElementById("lblGood").text().split("\\s+").map(_.trim).reduce(_ + _)
+                                              val excellent = doc.getElementById("lblExcellent").text().split("\\s+").map(_.trim).reduce(_ + _)
+
+                                              println(s"fair $fair good $good excellent $excellent")
+                                              writer.println(s"${citiesMap(city)}    $km    $year    ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}    $fair    $good    $excellent")
+                                              writer.flush()
+                                            case Failure(th) =>
+                                              th.printStackTrace()
+                                          }
+
+                                          Await.result(f, 10 minutes)
+                                        }
                                       }
                                     }
                                   }

@@ -7,15 +7,21 @@ import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
 
+
 /**
  * Created by pnagarjuna on 30/10/15.
  */
+
+case class Atomic(Value: Int, Text: String)
+
 object Utils {
-  def evaluate(cityId: Int, carVersion: Int, year: Int, month: Int, kms: Int, vt: Int): Future[WSResponse] = {
+  def evaluate(cityId: Int, carVersion: Int, year: Int, month: Int, kms: Int, vt: Int = 2): Future[WSResponse] = {
     //http://www.carwale.com/used/CarValuation/default.aspx?city=198&car=998&year=1998&month=2&kms=1111&vt=2
     val baseUrl = "http://www.carwale.com/used/CarValuation/default.aspx"
-    val params = List(s"city=${cityId.toString}", s"car=${carVersion.toString}", s"year=${year.toString}", s"month=${month.toString}", s"kms=${kms.toString}")
-    WS.client.url(baseUrl + params.mkString("?", "&", "")).get()
+    val params = List(s"city=${cityId.toString}", s"car=${carVersion.toString}", s"year=${year.toString}", s"month=${month.toString}", s"kms=${kms.toString}", s"vt=$vt")
+
+    WS.client.url(baseUrl + params.mkString("?", "&", "")).withFollowRedirects(true)
+      .get()
   }
 
   val carWale = "http://www.carwale.com/ajaxpro/CarwaleAjax.AjaxValuation,Carwale.ashx"
@@ -51,8 +57,6 @@ object Utils {
     )
     req.post(payload)
   }
-
-  case class Atomic(Value: Int, Text: String)
 
   def parse(str: String): Option[List[Atomic]] = {
     Try {
