@@ -45,7 +45,7 @@ object Main {
 
     //val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/Desktop/Cars.csv"))
 
-    val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/Desktop/data.csv"))
+    val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/data.csv"))
 
     years.foreach { year => {
 
