@@ -20,6 +20,21 @@ object Main {
 
     val months = (1 to 12).toList
 
+    val monthsMap = Map (
+      1 -> "Jan",
+      2 -> "Feb",
+      3 -> "Mar",
+      4 -> "Apr",
+      5 -> "May",
+      6 -> "Jun",
+      7 -> "Jul",
+      8 -> "Aug",
+      9 -> "Sep",
+      10 -> "Oct",
+      11 -> "Nov",
+      12 -> "Dec"
+    )
+
     val years = (1990 to 2015).toList
 
     val kms = List(1000) ++ (10000 to 160000 by 10000).toList
@@ -92,15 +107,13 @@ object Main {
                                               val fair = doc.getElementById("lblFair").text().split(",").map(_.trim).reduce(_ + _)
                                               val good = doc.getElementById("lblGood").text().split(",").map(_.trim).reduce(_ + _)
                                               val excellent = doc.getElementById("lblExcellent").text().split(",").map(_.trim).reduce(_ + _)
-
                                               //println(s"fair $fair good $good excellent $excellent")
-                                              writer.println(s"${citiesMap(city)}    $km    $year    ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}    $fair    $good    $excellent")
+                                              writer.println(s"${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}    ${citiesMap(city)}    $year    ${monthsMap(month)}     $km    $fair    $good    $excellent")
                                               writer.flush()
                                             case Failure(th) =>
                                               th.printStackTrace()
                                           }
-
-                                          Await.result(f, 10 minutes)
+                                          Await.result(f, 30 minutes)
                                         }
                                       }
                                     }
