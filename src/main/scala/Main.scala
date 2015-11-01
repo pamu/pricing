@@ -17,6 +17,11 @@ object Main {
   def main(args: Array[String]): Unit = {
     println("Carwale pricing engine")
 
+    if (args.length != 1) {
+      println(s"Please provide the file name")
+      sys.exit()
+    }
+
 
     val months = (1 to 12).toList
 
@@ -60,7 +65,7 @@ object Main {
 
     //val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/Desktop/Cars.csv"))
 
-    val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/data.csv"))
+    val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/${args(0).trim}.csv"))
 
     years.foreach { year => {
 
