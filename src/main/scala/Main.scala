@@ -23,7 +23,9 @@ object Main {
     }
 
 
-    val months = (1 to 12).toList
+    //val months = (1 to 12).toList
+
+    val months = List(1, 4, 7, 10)
 
     val monthsMap = Map (
       1 -> "Jan",
@@ -40,11 +42,13 @@ object Main {
       12 -> "Dec"
     )
 
-    val years = (1990 to 2015).toList
+    val years = (2004 to 2015).toList
 
     val kms = List(1000) ++ (10000 to 160000 by 10000).toList
 
-    val cities = List(2, 176, 273, 225, 246, 105, 1, 10, 13, 12, 40, 224, -1, 3, 31).distinct
+    //val cities = List(2, 176, 273, 225, 246, 105, 1, 10, 13, 12, 40, 224, -1, 3, 31).distinct
+
+    val cities = List(2)
 
     val citiesMap = Map(
       2 -> "Bangalore",
@@ -151,5 +155,7 @@ object Main {
       Await.result(x, 30 minutes)
     }
     }
+
+
   }
 }
