@@ -42,7 +42,7 @@ object Main {
       12 -> "Dec"
     )
 
-    val years = (2004 to 2015).toList
+    val years = List(2014)
 
     val kms = List(1000) ++ (10000 to 160000 by 10000).toList
 
