@@ -42,7 +42,7 @@ object Main {
       12 -> "Dec"
     )
 
-    val years = (2004 to 2015).toList
+    val years = List(2014)
 
     val kms = List(1000) ++ (10000 to 160000 by 10000).toList
 
@@ -94,14 +94,14 @@ object Main {
             case Some(makesAtomicList) =>
               makesAtomicList.foreach { makeAtomic =>
                 val gf = g(year, makeAtomic.Value)
-                Await.result(gf, 1 minute)
+                //Await.result(gf, 1 minute)
                 gf onComplete {
                   case Success(someModelsAtomicList) =>
                     someModelsAtomicList match {
                       case Some(modelsAtomicList: List[Atomic]) =>
                         modelsAtomicList.foreach { modelAtomic: Atomic =>
                           val hf = h(year, modelAtomic.Value)
-                          Await.result(hf, 1 minute)
+                          //Await.result(hf, 1 minute)
                           hf onComplete  {
                             case Success(someVersionsAtomicList: Option[List[Atomic]]) =>
                               someVersionsAtomicList match {
@@ -113,7 +113,7 @@ object Main {
                                       kms.foreach { km =>
                                         months.foreach { month =>
                                           val f = Utils.evaluate(city, versionAtomic.Value, year, month, km)
-                                          Await.result(f , 1 minute)
+                                          //Await.result(f , 1 minute)
                                           f onComplete {
                                             case Success(res) =>
                                               //println(s"body ${res.body.toString}")
@@ -127,7 +127,7 @@ object Main {
                                             case Failure(th) =>
                                               th.printStackTrace()
                                           }
-                                          Await.result(f, 30 minutes)
+                                          //Await.result(f, 30 minutes)
                                         }
                                       }
                                     }
@@ -157,7 +157,7 @@ object Main {
           th.printStackTrace()
       }
 
-      Await.result(x, 30 minutes)
+      Await.result(x,  10 days)
     }
     }
 
