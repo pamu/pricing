@@ -93,12 +93,16 @@ object Main {
           someMakesAtomicList match {
             case Some(makesAtomicList) =>
               makesAtomicList.foreach { makeAtomic =>
-                g(year, makeAtomic.Value) onComplete {
+                val gf = g(year, makeAtomic.Value)
+                Await.result(gf, 1 minute)
+                gf onComplete {
                   case Success(someModelsAtomicList) =>
                     someModelsAtomicList match {
                       case Some(modelsAtomicList: List[Atomic]) =>
                         modelsAtomicList.foreach { modelAtomic: Atomic =>
-                          h(year, modelAtomic.Value) onComplete  {
+                          val hf = h(year, modelAtomic.Value)
+                          Await.result(hf, 1 minute)
+                          hf onComplete  {
                             case Success(someVersionsAtomicList: Option[List[Atomic]]) =>
                               someVersionsAtomicList match {
                                 case Some(versionsAtomicList) =>
@@ -109,6 +113,7 @@ object Main {
                                       kms.foreach { km =>
                                         months.foreach { month =>
                                           val f = Utils.evaluate(city, versionAtomic.Value, year, month, km)
+                                          Await.result(f , 1 minute)
                                           f onComplete {
                                             case Success(res) =>
                                               //println(s"body ${res.body.toString}")
