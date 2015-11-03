@@ -107,30 +107,32 @@ object Main {
                               someVersionsAtomicList match {
                                 case Some(versionsAtomicList) =>
                                   versionsAtomicList.foreach { versionAtomic =>
+                                    writer.println(s"$year    ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}    ${versionAtomic.Value}")
+                                    writer.flush();
                                     //println(s"$year   ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}")
-                                    //writer.println(s"$year    ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}")
-                                    cities.foreach { city =>
-                                      kms.foreach { km =>
-                                        months.foreach { month =>
-                                          val f = Utils.evaluate(city, versionAtomic.Value, year, month, km)
-                                          Await.result(f , 1 minute)
-                                          f onComplete {
-                                            case Success(res) =>
-                                              //println(s"body ${res.body.toString}")
-                                              val doc = Jsoup.parse(res.body.toString())
-                                              val fair = doc.getElementById("lblFair").text().split(",").map(_.trim).reduce(_ + _)
-                                              val good = doc.getElementById("lblGood").text().split(",").map(_.trim).reduce(_ + _)
-                                              val excellent = doc.getElementById("lblExcellent").text().split(",").map(_.trim).reduce(_ + _)
-                                              //println(s"fair $fair good $good excellent $excellent")
-                                              writer.println(s"${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}    ${citiesMap(city)}    $year    ${monthsMap(month)}     $km    $fair    $good    $excellent")
-                                              writer.flush()
-                                            case Failure(th) =>
-                                              th.printStackTrace()
-                                          }
-                                          Await.result(f, 30 minutes)
-                                        }
-                                      }
-                                    }
+//                                    //writer.println(s"$year    ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}")
+//                                    cities.foreach { city =>
+//                                      kms.foreach { km =>
+//                                        months.foreach { month =>
+//                                          val f = Utils.evaluate(city, versionAtomic.Value, year, month, km)
+//                                          Await.result(f , 1 minute)
+//                                          f onComplete {
+//                                            case Success(res) =>
+//                                              //println(s"body ${res.body.toString}")
+//                                              val doc = Jsoup.parse(res.body.toString())
+//                                              val fair = doc.getElementById("lblFair").text().split(",").map(_.trim).reduce(_ + _)
+//                                              val good = doc.getElementById("lblGood").text().split(",").map(_.trim).reduce(_ + _)
+//                                              val excellent = doc.getElementById("lblExcellent").text().split(",").map(_.trim).reduce(_ + _)
+//                                              //println(s"fair $fair good $good excellent $excellent")
+//                                              writer.println(s"${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}    ${citiesMap(city)}    $year    ${monthsMap(month)}     $km    $fair    $good    $excellent")
+//                                              writer.flush()
+//                                            case Failure(th) =>
+//                                              th.printStackTrace()
+//                                          }
+//                                          //Await.result(f, 30 minutes)
+//                                        }
+//                                      }
+//                                    }
                                   }
                                 case None =>
                                   println("None")
