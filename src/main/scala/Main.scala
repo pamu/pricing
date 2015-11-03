@@ -46,7 +46,9 @@ object Main {
 
     val kms = List(1000) ++ (10000 to 160000 by 10000).toList
 
-    val cities = List(2, 176, 273, 225, 246, 105, 1, 10, 13, 12, 40, 224, -1, 3, 31).distinct
+    //val cities = List(2, 176, 273, 225, 246, 105, 1, 10, 13, 12, 40, 224, -1, 3, 31).distinct
+
+    val cities = List(2)
 
     val citiesMap = Map(
       2 -> "Bangalore",
@@ -65,106 +67,9 @@ object Main {
       3 -> "Nagpur",
       31 -> "Nashik")
 
-    //val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/Desktop/Cars.csv"))
-
-
-
-//    years.foreach { year => {
-//
-//      def f(year: Int) = for (
-//        makesRes <- Utils.getMakes(year);
-//        someMakesAtomicList <- Future(Utils.parse(makesRes.body))) yield someMakesAtomicList
-//
-//      def g(year: Int, makeId: Int) = for (
-//        modelsRes <- Utils.getModels(year, makeId);
-//        someMakesAtomicList <- Future(Utils.parse(modelsRes.body))
-//      ) yield someMakesAtomicList
-//
-//      def h(year: Int, modelId: Int) = for (
-//        versionsRes <- Utils.getVersions(year, modelId);
-//        someVersionsAtomicList <- Future(Utils.parse(versionsRes.body))
-//      ) yield someVersionsAtomicList
-//
-//      val x = f(year)
-//      x onComplete {
-//        case Success(someMakesAtomicList) =>
-//          someMakesAtomicList match {
-//            case Some(makesAtomicList) =>
-//              makesAtomicList.foreach { makeAtomic =>
-//                val gf = g(year, makeAtomic.Value)
-//                Await.result(gf, 1 minute)
-//                gf onComplete {
-//                  case Success(someModelsAtomicList) =>
-//                    someModelsAtomicList match {
-//                      case Some(modelsAtomicList: List[Atomic]) =>
-//                        modelsAtomicList.foreach { modelAtomic: Atomic =>
-//                          val hf = h(year, modelAtomic.Value)
-//                          Await.result(hf, 1 minute)
-//                          hf onComplete  {
-//                            case Success(someVersionsAtomicList: Option[List[Atomic]]) =>
-//                              someVersionsAtomicList match {
-//                                case Some(versionsAtomicList) =>
-//                                  versionsAtomicList.foreach { versionAtomic =>
-//                                    writer.println(s"$year    ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}    ${versionAtomic.Value}")
-//                                    writer.flush();
-//                                    //println(s"$year   ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}")
-//                                    //writer.println(s"$year    ${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}")
-//                                    cities.foreach { city =>
-//                                      kms.foreach { km =>
-//                                        months.foreach { month =>
-//                                          val f = Utils.evaluate(city, versionAtomic.Value, year, month, km)
-//                                          Await.result(f , 1 minute)
-//                                          f onComplete {
-//                                            case Success(res) =>
-//                                              //println(s"body ${res.body.toString}")
-//                                              val doc = Jsoup.parse(res.body.toString())
-//                                              val fair = doc.getElementById("lblFair").text().split(",").map(_.trim).reduce(_ + _)
-//                                              val good = doc.getElementById("lblGood").text().split(",").map(_.trim).reduce(_ + _)
-//                                              val excellent = doc.getElementById("lblExcellent").text().split(",").map(_.trim).reduce(_ + _)
-//                                              //println(s"fair $fair good $good excellent $excellent")
-//                                              writer.println(s"${makeAtomic.Text}    ${modelAtomic.Text}    ${versionAtomic.Text}    ${citiesMap(city)}    $year    ${monthsMap(month)}     $km    $fair    $good    $excellent")
-//                                              writer.flush()
-//                                            case Failure(th) =>
-//                                              th.printStackTrace()
-//                                          }
-//                                          //Await.result(f, 30 minutes)
-//                                        }
-//                                      }
-//                                    }
-//                                  }
-//                                case None =>
-//                                  println("None")
-//                                  println(s"$year   ${makeAtomic.Text}    ${modelAtomic.Text}")
-//                                //writer.println(s"$year    ${makeAtomic.Text}    ${modelAtomic.Text}")
-//                              }
-//                            case Failure(th) =>
-//                              th.printStackTrace()
-//                          }
-//                        }
-//                      case None =>
-//                        println("None")
-//                        println(s"$year   ${makeAtomic.Text}")
-//                      //writer.println(s"$year    ${makeAtomic.Text}")
-//                    }
-//                  case Failure(th) =>
-//                    th.printStackTrace()
-//                }
-//              }
-//            case None =>
-//              println("None")
-//          }
-//        case Failure(th) =>
-//          th.printStackTrace()
-//      }
-//
-//      Await.result(x, 30 minutes)
-//    }
-//    }
-
     val filename = args(0)
 
     fetch(filename) { datom =>
-
       cities.foreach { city =>
         kms.foreach { km =>
           months.foreach { month =>
@@ -183,6 +88,9 @@ object Main {
                   writer.flush()
                 }
               case Failure(th) =>
+                val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/errors.csv"))
+                writer.println(s"error ${th.getMessage}")
+                writer.flush()
                 th.printStackTrace()
             }
             //Await.result(f, 30 minutes)
