@@ -85,7 +85,7 @@ object Main {
                   val good = doc.getElementById("lblGood").text().split(",").map(_.trim).reduce(_ + _)
                   val excellent = doc.getElementById("lblExcellent").text().split(",").map(_.trim).reduce(_ + _)
                   //println(s"fair $fair good $good excellent $excellent")
-                  writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
+                  writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
                   writer.flush()
                 case Failure(th) =>
                   writer.println(s"error ${th.getMessage}")
