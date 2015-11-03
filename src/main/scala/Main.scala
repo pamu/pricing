@@ -1,5 +1,4 @@
-import java.io.PrintWriter
-import java.io.File
+import java.io.{FileInputStream, PrintWriter, File}
 import org.jsoup.Jsoup
 import play.api.Logger
 
@@ -76,7 +75,7 @@ object Main {
           kms.foreach { km =>
             months.foreach { month =>
               val f = Utils.evaluate(city, datom.versionId.toInt, datom.year.toInt, month, km)
-              Await.result(f, 1 minute)
+              Await.result(f, 4 minute)
               f onComplete {
                 case Success(res) =>
                   //println(s"body ${res.body.toString}")
@@ -85,7 +84,7 @@ object Main {
                   val good = doc.getElementById("lblGood").text().split(",").map(_.trim).reduce(_ + _)
                   val excellent = doc.getElementById("lblExcellent").text().split(",").map(_.trim).reduce(_ + _)
                   //println(s"fair $fair good $good excellent $excellent")
-                  writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
+                  writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
                   writer.flush()
                 case Failure(th) =>
                   writer.println(s"error ${th.getMessage}")
@@ -104,10 +103,10 @@ object Main {
 
   def fetch(filename: String)(f: Datom => Unit): Unit = {
     import java.util.Scanner
-    val scan = new Scanner(System.in)
+    val scan = new Scanner(new FileInputStream(new File(s"${System.getProperty("user.home")}/kuch_filename.csv")))
     while (scan.hasNext) {
       val line = scan.nextLine()
-      val lines = line.split("\\s+{4}").map(_.trim)
+      val lines = line.split("    ").map(_.trim)
       if (lines.length == 5) {
         val year = lines(0)
         val make = lines(1)
