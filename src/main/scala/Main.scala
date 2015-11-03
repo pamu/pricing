@@ -27,7 +27,7 @@ object Main {
 
     val months = List(1, 4, 7, 10)
 
-    val monthsMap = Map (
+    val monthsMap = Map(
       1 -> "Jan",
       2 -> "Feb",
       3 -> "Mar",
@@ -70,9 +70,8 @@ object Main {
     val filename = args(0)
 
     val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/errors.csv"))
-
-    fetch(filename) { datom =>
-      write(filename) { writer =>
+    write(filename) { writer =>
+      fetch(filename) { datom =>
         cities.foreach { city =>
           kms.foreach { km =>
             months.foreach { month =>
@@ -85,7 +84,7 @@ object Main {
                   val fair = doc.getElementById("lblFair").text().split(",").map(_.trim).reduce(_ + _)
                   val good = doc.getElementById("lblGood").text().split(",").map(_.trim).reduce(_ + _)
                   val excellent = doc.getElementById("lblExcellent").text().split(",").map(_.trim).reduce(_ + _)
-                //println(s"fair $fair good $good excellent $excellent")
+                  //println(s"fair $fair good $good excellent $excellent")
                   writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
                   writer.flush()
                 case Failure(th) =>
