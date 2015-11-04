@@ -47,7 +47,7 @@ object Main {
 
     //val cities = List(2, 176, 273, 225, 246, 105, 1, 10, 13, 12, 40, 224, -1, 3, 31).distinct
 
-    val cities = List(2)
+    val cities = List(1)
 
     val citiesMap = Map(
       2 -> "Bangalore",
