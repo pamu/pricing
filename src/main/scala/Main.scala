@@ -68,7 +68,7 @@ object Main {
 
     val filename = args(0)
 
-    val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/errors.csv"))
+    val writer_error = new PrintWriter(new File(s"${System.getProperty("user.home")}/errors.csv"))
     write(filename) { writer =>
       fetch(filename) { datom =>
         cities.foreach { city =>
@@ -87,8 +87,8 @@ object Main {
                   writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
                   writer.flush()
                 case Failure(th) =>
-                  writer.println(s"error ${th.getMessage}")
-                  writer.flush()
+                  writer_error.println(s"error ${th.getMessage}")
+                  writer_error.flush()
                   th.printStackTrace()
               }
               //Await.result(f, 30 minutes)
