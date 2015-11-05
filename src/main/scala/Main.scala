@@ -85,7 +85,7 @@ object Main {
               }
           }}
 
-          Await.ready(bigF, 5 minutes)
+          Await.ready(bigF, 10 minutes)
 
           bigF onComplete {
             case Success(list) =>
@@ -100,7 +100,9 @@ object Main {
                     val excellent = price._3
                     writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
                     writer.flush()
-                  case Left(km, month) =>
+                  case Left(item) =>
+                    val km = item._1
+                    val month = item._2
                     errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km")
                     errors.flush()
                 }
