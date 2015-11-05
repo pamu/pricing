@@ -98,17 +98,17 @@ object Main {
                     val fair = price._1
                     val good = price._2
                     val excellent = price._3
-                    writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
+                    writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${datom.versionId}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
                     writer.flush()
                   case Left(item) =>
                     val km = item._1
                     val month = item._2
-                    errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km")
+                    errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${datom.versionId}    ${citiesMap(city)}    ${monthsMap(month)}    $km")
                     errors.flush()
                 }
               }
             case Failure(th) =>
-              errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${th.getMessage}")
+              errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${datom.versionId}    ${citiesMap(city)}    ${th.getMessage}")
               errors.flush()
           }
         }
