@@ -120,7 +120,7 @@ object Main {
 
   def fetch(filename: String)(f: Datom => Unit): Unit = {
     import java.util.Scanner
-    val scan = new Scanner(new FileInputStream((new File(s"${System.getProperty("user.home")}/Desktop/pricing/src/main/scala/values.txt"))))
+    val scan = new Scanner(new FileInputStream((new File(s"${System.getProperty("user.home")}/kuch_filename.csv"))))
     while (scan.hasNext) {
       val line = scan.nextLine()
       val lines = line.split("    ").map(_.trim)
