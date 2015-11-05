@@ -27,8 +27,8 @@ object Utils {
       .get()
   }
 
-  def parsePage(html: String): Future[(String, String, String)] = {
-    Future {
+  def parsePage(html: String): Try[(String, String, String)] = {
+    Try {
       val doc = Jsoup.parse(html)
       val fair = doc.getElementById("lblFair").text().split(",").map(_.trim).reduce(_ + _)
       val good = doc.getElementById("lblGood").text().split(",").map(_.trim).reduce(_ + _)

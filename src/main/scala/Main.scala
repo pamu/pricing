@@ -74,11 +74,11 @@ object Main {
           val bigF = Future.sequence {
           kms.flatMap { km =>
               months.map { month =>
-                val f = Utils.evaluate(city, datom.versionId.toInt, datom.year.toInt, month, km).flatMap { res =>
+                val f = Utils.evaluate(city, datom.versionId.toInt, datom.year.toInt, month, km).map { res =>
                   val html = res.body.toString
-                  Utils.parsePage(html)
-                }.map { prices =>
-                  Right(km, month, prices)
+                  html
+                }.map { html =>
+                  Right(km, month, html)
                 }
                 val g = f.recover { case th => Left(km, month) }
                 g
@@ -94,12 +94,19 @@ object Main {
                   case Right(item) =>
                     val km = item._1
                     val month = item._2
-                    val price = item._3
-                    val fair = price._1
-                    val good = price._2
-                    val excellent = price._3
-                    writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${datom.versionId}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
-                    writer.flush()
+                    val html = item._3
+                    Utils.parsePage(html) match {
+                      case Success(price) =>
+                        val fair = price._1
+                        val good = price._2
+                        val excellent = price._3
+                        writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${datom.versionId}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
+                        writer.flush()
+                      case Failure(th) =>
+                        errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${datom.versionId}    ${citiesMap(city)}    ${monthsMap(month)}    $km    ${th.getMessage}")
+                        errors.flush()
+                    }
+
                   case Left(item) =>
                     val km = item._1
                     val month = item._2
