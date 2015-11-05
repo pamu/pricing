@@ -1,3 +1,4 @@
+import org.jsoup.Jsoup
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 
@@ -6,6 +7,8 @@ import scala.util.Try
 
 import scala.util.Success
 import scala.util.Failure
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 /**
@@ -22,6 +25,16 @@ object Utils {
 
     WS.client.url(baseUrl + params.mkString("?", "&", "")).withFollowRedirects(true)
       .get()
+  }
+
+  def parsePage(html: String): Future[(String, String, String)] = {
+    Future {
+      val doc = Jsoup.parse(html)
+      val fair = doc.getElementById("lblFair").text().split(",").map(_.trim).reduce(_ + _)
+      val good = doc.getElementById("lblGood").text().split(",").map(_.trim).reduce(_ + _)
+      val excellent = doc.getElementById("lblExcellent").text().split(",").map(_.trim).reduce(_ + _)
+      (fair, good, excellent)
+    }
   }
 
   val carWale = "http://www.carwale.com/ajaxpro/CarwaleAjax.AjaxValuation,Carwale.ashx"

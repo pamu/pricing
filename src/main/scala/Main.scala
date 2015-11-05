@@ -1,9 +1,8 @@
 import java.io.PrintWriter
 import java.io.File
-import org.jsoup.Jsoup
 import play.api.Logger
 
-import scala.concurrent.Await
+import scala.concurrent.{Future, Await}
 import scala.util.Success
 import scala.util.Failure
 
@@ -69,30 +68,47 @@ object Main {
 
     val filename = args(0)
 
-    val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/errors.csv"))
-    write(filename) { writer =>
+
+    write(filename) { (writer, errors) =>
       fetch(filename) { datom =>
         cities.foreach { city =>
           kms.foreach { km =>
-            months.foreach { month =>
-              val f = Utils.evaluate(city, datom.versionId.toInt, datom.year.toInt, month, km)
-              Await.result(f, 1 minute)
-              f onComplete {
-                case Success(res) =>
-                  //println(s"body ${res.body.toString}")
-                  val doc = Jsoup.parse(res.body.toString())
-                  val fair = doc.getElementById("lblFair").text().split(",").map(_.trim).reduce(_ + _)
-                  val good = doc.getElementById("lblGood").text().split(",").map(_.trim).reduce(_ + _)
-                  val excellent = doc.getElementById("lblExcellent").text().split(",").map(_.trim).reduce(_ + _)
-                  //println(s"fair $fair good $good excellent $excellent")
-                  writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
-                  writer.flush()
-                case Failure(th) =>
-                  writer.println(s"error ${th.getMessage}")
-                  writer.flush()
-                  th.printStackTrace()
+            val bigF = Future.sequence {
+              months.map { month =>
+                val f = Utils.evaluate(city, datom.versionId.toInt, datom.year.toInt, month, km).flatMap { res =>
+                  val html = res.body.toString
+                  Utils.parsePage(html)
+                }.map { prices =>
+                  Right(month, prices)
+                }
+                val g = f.recover { case th => Left(month)}
+                g
               }
-              //Await.result(f, 30 minutes)
+            }
+
+            Await.ready(bigF, 5 minutes)
+
+            bigF onComplete {
+              case Success(list) =>
+                list.foreach { eitherItem =>
+                  eitherItem match {
+                    case Right(item) =>
+                      val month = item._1
+                      val price = item._2
+                      val fair = price._1
+                      val good = price._2
+                      val excellent = price._3
+                      writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
+                      writer.flush()
+                    case Left(item) =>
+                      val month = item
+                      errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km")
+                      errors.flush()
+                  }
+                }
+              case Failure(th) =>
+                errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    $km    ${th.getMessage}")
+                errors.flush()
             }
           }
         }
@@ -107,7 +123,7 @@ object Main {
     val scan = new Scanner(System.in)
     while (scan.hasNext) {
       val line = scan.nextLine()
-      val lines = line.split("\\s+{4}").map(_.trim)
+      val lines = line.split("    ").map(_.trim)
       if (lines.length == 5) {
         val year = lines(0)
         val make = lines(1)
@@ -122,9 +138,10 @@ object Main {
     }
   }
 
-  def write(filename: String)(f: PrintWriter => Unit): Unit = {
+  def write(filename: String)(f: (PrintWriter, PrintWriter) => Unit): Unit = {
     val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/${filename.trim}.csv"))
-    f(writer)
+    val errors = new PrintWriter(new File(s"${System.getProperty("user.home")}/errors.csv"))
+    f(writer, errors)
     writer flush()
     writer close()
   }
