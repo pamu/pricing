@@ -1,5 +1,4 @@
-import java.io.PrintWriter
-import java.io.File
+import java.io.{FileInputStream, PrintWriter, File}
 import play.api.Logger
 
 import scala.concurrent.{Future, Await}
@@ -72,44 +71,43 @@ object Main {
     write(filename) { (writer, errors) =>
       fetch(filename) { datom =>
         cities.foreach { city =>
-          kms.foreach { km =>
-            val bigF = Future.sequence {
+          val bigF = Future.sequence {
+          kms.flatMap { km =>
               months.map { month =>
                 val f = Utils.evaluate(city, datom.versionId.toInt, datom.year.toInt, month, km).flatMap { res =>
                   val html = res.body.toString
                   Utils.parsePage(html)
                 }.map { prices =>
-                  Right(month, prices)
+                  Right(km, month, prices)
                 }
-                val g = f.recover { case th => Left(month)}
+                val g = f.recover { case th => Left(km, month) }
                 g
               }
-            }
+          }}
 
-            Await.ready(bigF, 5 minutes)
+          Await.ready(bigF, 5 minutes)
 
-            bigF onComplete {
-              case Success(list) =>
-                list.foreach { eitherItem =>
-                  eitherItem match {
-                    case Right(item) =>
-                      val month = item._1
-                      val price = item._2
-                      val fair = price._1
-                      val good = price._2
-                      val excellent = price._3
-                      writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
-                      writer.flush()
-                    case Left(item) =>
-                      val month = item
-                      errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km")
-                      errors.flush()
-                  }
+          bigF onComplete {
+            case Success(list) =>
+              list.foreach { eitherItem =>
+                eitherItem match {
+                  case Right(item) =>
+                    val km = item._1
+                    val month = item._2
+                    val price = item._3
+                    val fair = price._1
+                    val good = price._2
+                    val excellent = price._3
+                    writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
+                    writer.flush()
+                  case Left(km, month) =>
+                    errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km")
+                    errors.flush()
                 }
-              case Failure(th) =>
-                errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    $km    ${th.getMessage}")
-                errors.flush()
-            }
+              }
+            case Failure(th) =>
+              errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${th.getMessage}")
+              errors.flush()
           }
         }
       }
@@ -120,7 +118,7 @@ object Main {
 
   def fetch(filename: String)(f: Datom => Unit): Unit = {
     import java.util.Scanner
-    val scan = new Scanner(System.in)
+    val scan = new Scanner(new FileInputStream((new File(s"${System.getProperty("user.home")}/Desktop/pricing/src/main/scala/values.txt"))))
     while (scan.hasNext) {
       val line = scan.nextLine()
       val lines = line.split("    ").map(_.trim)
