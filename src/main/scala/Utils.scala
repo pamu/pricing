@@ -8,6 +8,8 @@ import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 
 /**
  * Created by pnagarjuna on 30/10/15.
