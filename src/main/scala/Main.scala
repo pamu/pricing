@@ -1,6 +1,5 @@
 import java.io.PrintWriter
 import java.io.File
-import org.jsoup.Jsoup
 import play.api.Logger
 
 import scala.concurrent.{Future, Await}
