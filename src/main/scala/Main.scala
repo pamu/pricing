@@ -2,7 +2,7 @@ import java.io.PrintWriter
 import java.io.File
 import play.api.Logger
 
-import scala.concurrent.{Future, Await}
+import scala.concurrent.Await
 import scala.util.Success
 import scala.util.Failure
 
