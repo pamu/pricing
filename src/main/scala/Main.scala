@@ -3,7 +3,7 @@ import java.io.File
 import org.jsoup.Jsoup
 import play.api.Logger
 
-import scala.concurrent.Await
+import scala.concurrent.{Future, Await}
 import scala.util.Success
 import scala.util.Failure
 
@@ -69,30 +69,34 @@ object Main {
 
     val filename = args(0)
 
-    val writer = new PrintWriter(new File(s"${System.getProperty("user.home")}/errors.csv"))
+    val errors = new PrintWriter(new File(s"${System.getProperty("user.home")}/errors.csv"))
     write(filename) { writer =>
       fetch(filename) { datom =>
         cities.foreach { city =>
           kms.foreach { km =>
             months.foreach { month =>
-              val f = Utils.evaluate(city, datom.versionId.toInt, datom.year.toInt, month, km)
-              Await.result(f, 1 minute)
+
+              val f = Utils.evaluate(city, datom.versionId.toInt, datom.year.toInt, month, km).flatMap { res =>
+                val html = res.body.toString
+                Utils.parsePage(html)
+              }
+
+              Await.result(f, 5 minutes)
+
               f onComplete {
-                case Success(res) =>
-                  //println(s"body ${res.body.toString}")
-                  val doc = Jsoup.parse(res.body.toString())
-                  val fair = doc.getElementById("lblFair").text().split(",").map(_.trim).reduce(_ + _)
-                  val good = doc.getElementById("lblGood").text().split(",").map(_.trim).reduce(_ + _)
-                  val excellent = doc.getElementById("lblExcellent").text().split(",").map(_.trim).reduce(_ + _)
-                  //println(s"fair $fair good $good excellent $excellent")
+                case Success(prices) =>
+                  println("row written to file")
+                  val fair = prices._1
+                  val good = prices._2
+                  val excellent = prices._3
                   writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
                   writer.flush()
                 case Failure(th) =>
-                  writer.println(s"error ${th.getMessage}")
-                  writer.flush()
+                  errors.println(s"error ${th.getMessage}")
+                  errors.flush()
                   th.printStackTrace()
               }
-              //Await.result(f, 30 minutes)
+
             }
           }
         }
@@ -107,7 +111,7 @@ object Main {
     val scan = new Scanner(System.in)
     while (scan.hasNext) {
       val line = scan.nextLine()
-      val lines = line.split("\\s+{4}").map(_.trim)
+      val lines = line.split("    ").map(_.trim)
       if (lines.length == 5) {
         val year = lines(0)
         val make = lines(1)
