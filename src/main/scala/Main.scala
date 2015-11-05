@@ -2,7 +2,7 @@ import java.io.PrintWriter
 import java.io.File
 import play.api.Logger
 
-import scala.concurrent.Await
+import scala.concurrent.{Future, Await}
 import scala.util.Success
 import scala.util.Failure
 
@@ -71,34 +71,51 @@ object Main {
     val errors = new PrintWriter(new File(s"${System.getProperty("user.home")}/errors.csv"))
     write(filename) { writer =>
       fetch(filename) { datom =>
-        cities.foreach { city =>
-          kms.foreach { km =>
-            months.foreach { month =>
+
+        Future.sequence(cities.flatMap { city =>
+          kms.flatMap { km =>
+            months.map { month =>
 
               val f = Utils.evaluate(city, datom.versionId.toInt, datom.year.toInt, month, km).flatMap { res =>
                 val html = res.body.toString
                 Utils.parsePage(html)
+              }.map { price =>
+                Right((city, km, month, price))
               }
 
-              Await.result(f, 5 minutes)
-
-              f onComplete {
-                case Success(prices) =>
-                  println("row written to file")
-                  val fair = prices._1
-                  val good = prices._2
-                  val excellent = prices._3
-                  writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
-                  writer.flush()
-                case Failure(th) =>
-                  errors.println(s"error ${th.getMessage}")
-                  errors.flush()
-                  th.printStackTrace()
-              }
-
+              f.recover { case th => Left((city, km, month)) }
             }
           }
+        }) onComplete {
+          case Success(list) =>
+            list.foreach { eitherValue =>
+              eitherValue match {
+                case Right(values) =>
+                  val city = values._1
+                  val km = values._2
+                  val month = values._3
+                  val price = values._4
+                  val fair = price._1
+                  val good = price._2
+                  val excellent = price._3
+                  writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
+                  writer.flush()
+                case Left(values) =>
+                  val city = values._1
+                  val km = values._2
+                  val month = values._3
+                  errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km")
+                  errors.flush()
+              }
+            }
+          case Failure(th) =>
+            th.printStackTrace()
+            println(s"errors ${th.getMessage}")
+            errors.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}")
+            errors.flush()
         }
+
+
       }
     }
   }
