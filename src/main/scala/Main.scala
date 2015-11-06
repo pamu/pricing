@@ -46,7 +46,7 @@ object Main {
 
     //val cities = List(2, 176, 273, 225, 246, 105, 1, 10, 13, 12, 40, 224, -1, 3, 31).distinct
 
-    val cities = List(2)
+    val cities = List(1)
 
     val citiesMap = Map(
       2 -> "Bangalore",
@@ -98,7 +98,7 @@ object Main {
                     val fair = price._1
                     val good = price._2
                     val excellent = price._3
-                    writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${datom.versionId}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
+                    writer.println(s"${datom.year}    ${datom.make}    ${datom.model}    ${datom.version}    ${citiesMap(city)}    ${monthsMap(month)}    $km    $fair    $good    $excellent")
                     writer.flush()
                   case Left(item) =>
                     val km = item._1
