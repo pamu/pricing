@@ -46,7 +46,7 @@ object Main {
 
     //val cities = List(2, 176, 273, 225, 246, 105, 1, 10, 13, 12, 40, 224, -1, 3, 31).distinct
 
-    val cities = List(1)
+    val cities = List(12)
 
     val citiesMap = Map(
       2 -> "Bangalore",
@@ -120,7 +120,7 @@ object Main {
 
   def fetch(filename: String)(f: Datom => Unit): Unit = {
     import java.util.Scanner
-    val scan = new Scanner(new FileInputStream((new File(s"${System.getProperty("user.home")}/kuch_filename.csv"))))
+    val scan = new Scanner(new FileInputStream((new File(s"${System.getProperty("user.home")}/pricing/all_without_some_makes.csv"))))
     while (scan.hasNext) {
       val line = scan.nextLine()
       val lines = line.split("    ").map(_.trim)
